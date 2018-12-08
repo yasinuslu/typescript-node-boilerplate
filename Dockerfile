@@ -1,20 +1,24 @@
-# there is an issue with alpine and nodemon, when you change the code, it fails with:
-# starting inspector on 0.0.0.0:9229 failed: address already in use
-# so we use debian in development
-FROM node:10 as dev
+FROM node:10-alpine as dev
 
 WORKDIR /app
 
+# We need some packages in development
+RUN apk add --update util-linux git python make bash g++
+
+# copy source
 COPY . /app
 
-# this image already has yarn, but it's better if we have the latest version
 RUN npm i -g yarn
+
+# install only production modules and separate it for later use
+RUN yarn install --production --frozen-lockfile \
+  && cp -r node_modules /prod_node_modules/
 
 # install all modules
 RUN yarn install --frozen-lockfile
 
 # starting point for builder image
-FROM node:10 as builder
+FROM node:10-alpine as builder
 
 WORKDIR /app
 
@@ -28,14 +32,12 @@ FROM node:10-alpine as prod
 
 WORKDIR /app
 
-# get source from local, build from builder
-COPY . /app
-COPY --from=builder /app/build /app/build
+# get source and all node_modules from dev stage
+COPY --from=builder /app /app
+COPY --from=dev /prod_node_modules /prod_node_modules
 
-# install only production packages
-# we cannot rely on node_modules from other stages because:
-# they use debian, this image is alpine
-RUN npm i -g yarn \
-  && yarn install --production --frozen-lockfile
+# only use production modules
+RUN rm -rf node_modules \
+  && mv /prod_node_modules /app/node_modules
 
 CMD ["yarn", "start"]
