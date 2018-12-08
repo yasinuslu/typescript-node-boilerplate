@@ -1,0 +1,52 @@
+{
+  "name": "pro-arb",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Yasin Uslu <nepjua@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "ddev": "yarn dup && yarn docd run --rm --service-ports app",
+    "dtest": "yarn drun test",
+    "dtest:debug": "yarn doct run --rm --service-ports task yarn test:debug",
+    "dlint": "yarn drun lint",
+    "lint": "tslint 'src/**/*.ts?(x)'",
+    "test": "jest",
+    "test:debug": "node --inspect-brk=0.0.0.0:9229 ./node_modules/.bin/jest --runInBand --detectOpenHandles",
+    "dev": "yarn && backpack --inspect=0.0.0.0:9229 | pino-pretty --translateTime",
+    "build": "backpack build",
+    "start": "node ./build/main.js",
+    "docd": "docker-compose -f docker-compose.yml -f docker-compose.dev.yml",
+    "doct": "yarn docd -f docker-compose.task.yml",
+    "drun": "yarn doct run --rm --user `id -u`:`id -g` task yarn",
+    "dinstall": "yarn doct run --rm task chown -R node:node .; yarn drun install",
+    "dup": "yarn docd up -d redis"
+  },
+  "dependencies": {
+    "@types/node": "^10.12.12",
+    "pino": "^5.8.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": [
+      "tslint --fix",
+      "git add"
+    ]
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.1.0",
+    "babel-preset-backpack": "^0.8.2",
+    "backpack-core": "^0.8.3",
+    "husky": "^1.1.3",
+    "jest-extended": "^0.11.0",
+    "lint-staged": "^8.0.4",
+    "pino-pretty": "^2.2.3",
+    "prettier": "^1.15.1",
+    "tslint": "^5.11.0",
+    "tslint-plugin-prettier": "^2.0.1",
+    "typescript": "^3.2.2"
+  }
+}

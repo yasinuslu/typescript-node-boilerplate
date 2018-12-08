@@ -1,0 +1,22 @@
+# docker-compose override for development
+# assumes to be applied in order:
+# docker-compose.yml => docker-compose.dev.yml
+
+version: '3.4'
+
+volumes:
+  node_modules: {}
+
+services:
+  app:
+    build:
+      target: dev
+    command: yarn dev
+    environment:
+      NODE_ENV: development
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    ports:
+      - 3000:3000
+      - 9229:9229

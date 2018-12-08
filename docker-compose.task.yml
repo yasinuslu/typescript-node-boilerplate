@@ -1,0 +1,21 @@
+# docker-compose for one time tasks
+# assumes to be applied in order:
+# docker-compose.yml => docker-compose.dev.yml => docker-compose.task.yml
+
+version: '3.4'
+
+services:
+  # you can use this task for testing and other things
+  task:
+    build:
+      context: .
+      target: dev
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    environment:
+      # if you use this task for testing, you might want to use a different database
+      # app uses `redis://redis:6379/0`, task uses `redis://redis:6379/5`
+      APP_REDIS_URL: redis://redis:6379/5
+    ports:
+      - 5001:9229

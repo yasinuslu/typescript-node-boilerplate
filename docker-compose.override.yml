@@ -1,0 +1,18 @@
+# docker-compose override for production
+# assumes to be applied in order (which is the default behaviour when you run `docker-compose`):
+# docker-compose.yml => docker-compose.override.yml
+
+version: '3.4'
+
+services:
+  redis:
+    logging:
+      options:
+        max-size: '10m'
+        max-file: '5'
+
+  app:
+    logging:
+      options:
+        max-size: '10m'
+        max-file: '5'
